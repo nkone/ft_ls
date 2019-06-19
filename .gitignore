@@ -54,4 +54,4 @@ dkms.conf
 # Temp files
 *.DS_Store
 *._*
-*.*swp
+*.*.swp
