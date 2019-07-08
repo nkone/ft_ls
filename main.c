@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/20 11:58:24 by phtruong          #+#    #+#             */
-/*   Updated: 2019/06/22 19:47:34 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/08 13:30:12 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,26 +29,15 @@
 // File permissions are stored as a number and uses bitwise to find exact
 // permission types;
 //
-int find_start_arg(int argc, char *argv[])
-{
-	int c;
-	int i;
 
-	i = 0;
-	c = 0;
-	while (++c <= (argc - 1))
-	{
-//		ft_printf("checking argv: %s\n", argv[c]);
-		if (argv[c][i] == '-' && argv[c][i+1])
-			continue;
-		else
-			return (c);
-	}
-//	printf("c: %d\n", c);
-	return (0);
-}
-
-void	ft_ls_initialize(void)
+/*
+** function ft_ls_init:
+** Parameters: NONE
+** Creates the initial settings for ft_ls.
+** Settings here are default unless changed by collected flags.
+** Returns: void.
+*/
+void	ft_ls_init(void)
 {
 	format = many_per_line;
 	sort_type = sort_name;
@@ -60,15 +49,6 @@ void	ft_ls_initialize(void)
 	ignore_mode = DEFAULT;
 }
 
-void	check_legal_opt(char c)
-{
-	if (!(ft_strchr(LS_FLAGS, c)))
-	{
-		ft_printf("ls: illegal option -- %c\nusage: ft_ls [-%s]"
-					" [file ...]\n", c, LS_FLAGS);
-		exit(1);
-	}
-}
 
 void	case_F(void)
 {
@@ -137,26 +117,51 @@ void	case_1(void)
 	format = one_per_line;
 }
 
-void	flag_collector(char *argv[], int c)
+/*
+** function get_flags
+** Parameters:
+** 		char *argv[]: char pointer to stream of argument values.
+**		int c: index to access a specific argument value.
+** Parses through an argument, with given index (c), checks for illegal flags,
+** alters settings for legal flags.
+** Returns:	value of c if argument does not start with '-' follow by a character
+** 			0 if success.
+*/
+int		get_flags(char *argv[], int c)
 {
 	int i;
 	char *ref;
 
 	i = 0;
-	if (argv[c][i] == '-')
+	if (argv[c][i] == '-' && argv[c][i+1] != '\0')
 		i++;
-	else
-		return ;
+	else if (argv[c][i])
+		return (c);
 	while (argv[c][i])
 	{
-		check_legal_opt(argv[c][i]);
-		ref = ft_strchr(LS_FLAGS, argv[c][i]);
+		if (!(ref = ft_strchr(LS_FLAGS, argv[c][i])))
+		{
+			ft_printf("ls: illegal option -- %c\nusage: ft_ls [-%s]"
+					" [file ...]\n", argv[c][i], LS_FLAGS);
+			exit(1);
+		}
 		g_ls_flags[(ptrdiff_t)(ref - LS_FLAGS)]();
 		i++;
 	}
-	return ;
+	return (0);
 }
 
+/*
+** function flag_driver
+** Parameters:
+**		int argc: total number of arguments in main
+**		char *argv[]: char pointer to argument values
+** Loop through all the arguments and update global starting argument.
+** If argument consists of flags only, then starting argument will be zero
+** as the get_flags() returns 0.
+** Stop collecting flags when encounters a non flag argument.
+** Returns: void.
+*/
 void	flag_driver(int argc, char *argv[])
 {
 	int c;
@@ -164,9 +169,15 @@ void	flag_driver(int argc, char *argv[])
 	c = 0;
 	// Loop through arguments
 	while (++c <= (argc - 1))
-		flag_collector(argv, c);
+	{
+		g_argc = get_flags(argv, c);
+		if (g_argc != 0)
+			break;
+	}
 }
 
+// Debug functions
+/*----------------------------------------------------------------------------*/
 char	*get_format(enum e_format format)
 {
 	switch(format)
@@ -230,12 +241,16 @@ void	print_ls_settings(void)
 	printf( (g_numeric_id) ? "True\n" : "False\n");
 	
 }
+// End of debug functions
+/*----------------------------------------------------------------------------*/
+
 int main(int argc, char *argv[])
 {
 	char	*dirname;
 	DIR		*dir;
+	struct dirent dp;
 	struct stat filestat;
-	ft_ls_initialize();
+	ft_ls_init();
 	if (argc > 1)
 		flag_driver(argc, argv);
 	/*if (stat(argv[1], &filestat) < 0)
@@ -256,6 +271,14 @@ int main(int argc, char *argv[])
 //	ft_printf("start: %d argc: %d dirname: %s\n", start, argc, dirname);
 //	while(1);
 	//format = horizontal;
+	char *filename = "ft_ls.h";
+	if ((dir = opendir(filename)) == NULL)
+	{
+		printf("ft_ls: %s: %s\n", filename, strerror(errno));
+		printf("errno: %d\n", errno);
+	}
+	printf("errno: %d\n", errno);
 	print_ls_settings();
+	printf("start argc: %d\nargc: %d\n", g_argc, argc);
 	return (0);
 }
