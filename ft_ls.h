@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/20 11:59:34 by phtruong          #+#    #+#             */
-/*   Updated: 2019/06/22 19:46:54 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/08 13:12:39 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ void				case_F(void);
 void				case_R(void);
 void				case_a(void);
 void				case_f(void);
+void				case_i(void);
 void				case_l(void);
 void				case_m(void);
 void				case_n(void);
@@ -160,4 +161,9 @@ static bool g_recursive;
 
 static bool g_numeric_id;
 
+/*
+** to find starting argc
+*/
+
+static int g_argc = 0;
 #endif
