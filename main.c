@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/20 11:58:24 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/08 13:30:12 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/15 20:33:05 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,12 @@
 // Print file stats [ ]
 // File permissions are stored as a number and uses bitwise to find exact
 // permission types;
-//
+// Merge sort linked list [✓]
+// Count sort linked list ??? [X]
+// Jump table for printing colors coded file type[]
+// Function to append linked list[]
+// Store arguments in a linked list before printing[]
+// 		Sort arguments
 
 /*
 ** function ft_ls_init:
@@ -49,15 +54,24 @@ void	ft_ls_init(void)
 	ignore_mode = DEFAULT;
 }
 
+void	case_ua(void)
+{
+	ignore_mode = DOT_AND_DOTDOT;
+}
 
-void	case_F(void)
+void	case_uf(void)
 {
 	indicator_style = classify;
 }
 
-void	case_R(void)
+void	case_ur(void)
 {
 	g_recursive = true;
+}
+
+void	case_us(void)
+{
+	sort_type = sort_size;
 }
 
 void	case_a(void)
@@ -176,6 +190,21 @@ void	flag_driver(int argc, char *argv[])
 	}
 }
 
+/*
+** function is_exe
+** Paramters:
+** 		struct stat filestat: stat structure in sys/stat.h
+** Checks to see if the file is an executable
+** Returns: 1 if the file is an executable and not a directory
+**			0 otherwise.
+*/
+int	is_exe(t_stat stat)
+{
+	return (!S_ISLNK(stat.st_mode) && !S_ISDIR(stat.st_mode) 
+			&& (stat.st_mode & S_IXUSR || stat.st_mode & S_IXGRP 
+			|| stat.st_mode & S_IXOTH));
+}
+
 // Debug functions
 /*----------------------------------------------------------------------------*/
 char	*get_format(enum e_format format)
@@ -197,6 +226,7 @@ char	*get_sort_type(enum e_sort_type sort_type)
 		case sort_none: return "sort_none";
 		case sort_name: return "sort_name";
 		case sort_time: return "sort_time";
+		case sort_size: return "sort_size";
 	}
 }
 
@@ -238,25 +268,605 @@ void	print_ls_settings(void)
 	printf("Print inode: ");
 	printf( (g_print_inode) ? "True\n" : "False\n");
 	printf("Print numeric id: ");
-	printf( (g_numeric_id) ? "True\n" : "False\n");
-	
+	printf( (g_numeric_id) ? "True\n" : "False\n");	
 }
+
 // End of debug functions
 /*----------------------------------------------------------------------------*/
+/*
+** Merge sort attempt
+** Creating a merge sort for linked list.
+*/
+t_files *sorted_merge(t_files *a, t_files *b);
+
+void print_list(t_files *ls)
+{
+	while (ls)
+	{
+		if (is_exe(ls->fstat))
+			printf(P_RED"%s\n"P_NC, ls->name);
+		else if (S_ISDIR(ls->fstat.st_mode))
+			printf(P_CYAN"%s\n"P_NC, ls->name);
+		else if (S_ISLNK(ls->fstat.st_mode))
+			printf(P_MAGENTA"%s\n"P_NC, ls->name);
+		else
+		{
+			printf("%s\n", ls->name);
+		}
+		//printf("path: %s\n", ls->path);
+		ls = ls->next;
+	}
+}
+
+char	*get_color(t_stat stat)
+{
+	if (is_exe(stat))
+		return (P_RED);
+	else if (S_ISDIR(stat.st_mode))
+		return (P_CYAN);
+	else if (S_ISLNK(stat.st_mode))
+		return(P_MAGENTA);
+	else
+		return ("");
+}
+
+t_files *create(char *name, char *path)
+{
+	t_files	*head;
+	t_stat	stat;
+
+	head = malloc(sizeof(t_files));
+	head->name = ft_strdup(name);
+	lstat(path, &stat);
+	head->path = path;
+	head->color = get_color(stat);
+	head->fstat = stat;
+	head->next = NULL;
+	return (head);
+}
+void	append(t_files **head, char *str, char *path)
+{
+	t_files *cursor;
+
+	cursor = *head;
+	while (cursor->next)
+		cursor = cursor->next;
+	cursor->next = create(str, path);
+}
+
+void make_node(t_files **ls, char *name, char *path)
+{
+	t_stat stat;
+
+	*ls = malloc(sizeof(t_files));
+	(*ls)->name = ft_strdup(name);
+	lstat(path, &stat);
+	(*ls)->path = path;
+	(*ls)->color = get_color(stat);
+	(*ls)->fstat = stat;
+	(*ls)->next = NULL;
+}
+void make_links(t_files **ls, char *name, char *path)
+{
+	t_files *cursor;
+	t_stat	stat;
+
+	if (!*ls)
+		make_node(ls, name, path);
+	else if (*ls)
+	{
+		cursor = *ls;
+		while (cursor->next)
+			cursor = cursor->next;
+		make_node(&(cursor->next), name, path);
+	}
+}
+void	split_list(t_files *source, t_files **front, t_files **back)
+{
+	t_files *fast;
+	t_files *slow;
+
+	slow = source;
+	fast = source->next;
+	while (fast)
+	{
+		fast = fast->next;
+		if (fast)
+		{
+			slow = slow->next;
+			fast = fast->next;
+		}
+	}
+	*front = source;
+	*back = slow->next;
+	slow->next = NULL;
+}
+
+int	cmp_alpha(const char *s1, const char *s2)
+{
+	if (!g_sort_reverse)
+		return (ft_strcmp(s1, s2) < 0);
+	return(ft_strcmp(s1, s2) > 0);
+}
+
+int cmp_time(time_t a, time_t b)
+{
+	if (!g_sort_reverse)
+		return (a > b);
+	return(a < b);
+}
+
+int cmp_size(off_t a, off_t b)
+{
+	if (!g_sort_reverse)
+		return (a > b);
+	return (a < b);
+}
+
+int		select_sort(t_files *a, t_files *b)
+{
+	if (sort_type == sort_name)
+		return (cmp_alpha(a->name, b->name));
+	else if(sort_type == sort_time)
+		return (cmp_time(a->fstat.st_mtime, b->fstat.st_mtime));
+	else if (sort_type == sort_size)
+		return (cmp_size(a->fstat.st_size, b->fstat.st_size));
+	return (0);
+}
+
+t_files	*sorted_merge(t_files *a, t_files *b)
+{
+	t_files *result;
+
+	result = NULL;
+	if (!a)
+		return (b);
+	else if (!b)
+		return (a); 
+	if (select_sort(a, b))
+	{
+		result = a;
+		result->next = sorted_merge(a->next, b);
+	}
+	else
+	{
+		result = b;
+		result->next = sorted_merge(a, b->next);
+	}
+	return (result);
+}
+
+void merge_sort_list(t_files **ls)
+{
+	t_files *head;
+	t_files *a;
+	t_files *b;
+
+	head = *ls;
+	if (head == NULL || head->next == NULL)
+		return;
+	split_list(head, &a, &b);
+	merge_sort_list(&a);
+	merge_sort_list(&b);
+	*ls = sorted_merge(a, b);
+}
+
+void col_format(t_files *f, t_pcol *p, unsigned short wcol)
+{
+	int len;
+
+	len = 0;
+	p->max = 0;
+	p->no_f = 0;
+	while(f)
+	{
+		len = (int)ft_strlen(f->name);
+		p->max = (len > p->max) ? len : p->max;
+		p->no_f += 1;
+		f = f->next;
+	}
+	p->col = (wcol >= (p->max + 1)) ? (wcol / (p->max + 1)) : 1;
+	//printf("p->col: %d wcol: %hd p->max: %d\n", p->col, wcol, p->max);
+	p->row = (p->no_f % p->col) ? (p->no_f / p->col + 1) : (p->no_f / p->col);
+}
+
+/*
+** function path_to_file
+** Parameters:
+** 		[path]: const char pointer string path from user
+**		[file]: file name to be appended to path
+** Takes in path and filename. Malloc a new string with 2 extra spaces: one for
+** a '/' and another for '\0'. Copies path over then append the slash follow by
+** file name.
+** Returns: a string of full path with file name appended.
+*/
+char *path_to_file(const char *path, const char *file)
+{
+	char	*result;
+	size_t	len;
+	int		i;
+
+	i = 0;
+	len = ft_strlen(path) + ft_strlen(file) + 1;
+	if (!(result = malloc(sizeof(char) * (len + 1))))
+		return (NULL);
+	result[len] = '\0';
+	while (*path)
+		result[i++] = *path++;
+	result[i++] = '/';
+	while (*file)
+		result[i++] = *file++;
+	return (result);
+}
+
+/*
+** function file_ignored
+** Parameters:
+** 		[filename] : name of file to check
+** Checks if the file should be ignored before adding to list.
+** Returns: TRUE if should be ignored. FALSE otherwise
+*/
+static bool file_ignored(const char *filename)
+{
+	return ((ignore_mode != MINIMAL && filename[0] == '.'
+	&& (ignore_mode == DEFAULT || !filename[1 + (filename[1] == '.')])));
+}
+
+void	list_globalize(t_files *f, t_pcol p)
+{
+	int i;
+
+	i = 0;
+	g_sorted_file = malloc(sizeof(*g_sorted_file) * (p.no_f + 1));
+	while (f)
+	{
+		g_sorted_file[i++] = f;
+		f = f->next;
+	}
+	g_sorted_file[i] = NULL;
+}
+
+void	print_global_list()
+{
+	t_files *f;
+	int i;
+
+	i = 0;
+	while (g_sorted_file[i])
+	{
+		f = g_sorted_file[i];
+		printf("%s\n", f->name);
+		i++;
+	}
+}
+
+/*
+** function sort_argv
+** Parameters:
+**		[argc]: total number of arguments
+**		[argv]: array of arguments
+** Sort the array of arguments using strcmp. Only triggers if user input
+** multiple files or directories for arguments. 
+** (Bubble sort)
+** Space: O(1).
+** Time: Avg: O(n^2) Best: O(n).
+** Returns: void.
+*/
+void	sort_argv(int argc, char *argv[])
+{
+	int		i;
+	int		j;
+	char	*temp;
+
+	i = g_argc;
+	temp = NULL;
+	while (i < argc)
+	{
+		j = i + 1;
+		while (j < argc)
+		{
+			if (!cmp_alpha(argv[i], argv[j]))
+			{
+				temp = argv[i];
+				argv[i] = argv[j];
+				argv[j] = temp;
+			}
+			j++;
+		}
+		i++;
+	}
+}
+
+static bool is_regular_file(const char *path)
+{
+	t_stat stat;
+
+	if (lstat(path, &stat) < 0)
+		return (false);
+	return (!(S_ISDIR(stat.st_mode)) ? true : false);
+}
+
+static bool is_regular_dir(const char *path)
+{
+	t_stat stat;
+
+	if (lstat(path, &stat) < 0)
+		return (false);
+	return ((S_ISDIR(stat.st_mode)) ? true : false);
+}
+
+t_files *list_argv(int argc, char *argv[])
+{
+	int		i;
+	t_files	*ls;
+
+	i = g_argc;
+	ls = NULL;
+	while (i < argc)
+	{
+		if (is_regular_file(argv[i]) || is_regular_dir(argv[i]))
+		{
+			if (!ls)
+				ls = create(argv[i], argv[i]);
+			else
+				append(&ls, argv[i], argv[i]);
+		}
+		i++;
+	}
+	return (ls);
+}
+
+/*
+** function inner_dir
+** Parameters:
+**		[name]: directory name
+** Opens a directory and store inside contents into a linked list
+** Returns: allocated linked list with all the inside contents;
+*/
+t_files *inner_dir(const char *name)
+{
+	char			*pa;
+	DIR				*dir;
+	struct dirent	*dp;
+	t_files			*ls;
+	t_stat			stat;
+
+	ls = NULL;
+	pa = NULL;
+	if ((dir = opendir(name)) == NULL)
+	{
+		printf("ft_ls: %s: %s\n", name, strerror(errno));
+		return (NULL);
+	}
+	while ((dp = readdir(dir)) != NULL)
+	{
+		if (!file_ignored(dp->d_name))
+		{
+			pa = path_to_file(name, dp->d_name);
+			if (!ls)
+				ls = create(dp->d_name, pa);
+			else
+				append(&ls, dp->d_name, pa);
+		}
+	}
+	closedir(dir);
+	return (ls);
+}
+
+void	free_list_argv(t_files *f)
+{
+	t_files *temp;
+
+	while (f)
+	{
+		if (f->name)
+			free(f->name);
+		temp = f->next;
+		free(f);
+		f = temp;
+	}
+}
+
+void	free_inner_dir(t_files *f)
+{
+	t_files *temp;
+
+	while (f)
+	{
+		if (f->name)
+			free(f->name);
+		if (f->path)
+			free(f->path);
+		temp = f->next;
+		free(f);
+		f = temp;
+	}
+}
+
+void	ls_driver(t_files *ls);
+
+void	print_dir(t_files *f, int flag)
+{
+	t_files *in_dir;
+
+	in_dir = NULL;
+	while(f)
+	{
+		if (S_ISDIR(f->fstat.st_mode))
+		{
+			if (flag)
+				printf("\n%s:\n", f->path);
+			else
+				printf("%s:\n", f->path);
+			in_dir = inner_dir(f->path);
+			if (in_dir)
+			{
+				merge_sort_list(&in_dir);
+				ls_driver(in_dir);
+				print_dir(in_dir, 1);
+				free_inner_dir(in_dir);
+			}
+		}
+		f = f->next;
+	}
+}
+
+void print_columns(t_pcol p)
+{
+	t_files	*f;
+	int i;
+	int j;
+	int x;
+
+	i = 0;
+	x = 0;
+	while (x < p.row)
+	{
+		(format == many_per_line) && (i = x);
+		j = 0;
+		while (j < p.col && i < p.no_f)
+		{
+			f = g_sorted_file[i];
+			printf("%s", f->color);
+			printf("%-*s"P_NC, p.max + 1, f->name);
+			i += (format == many_per_line) ? p.row : 1;
+			j++;
+		}
+		printf("\n");
+		x++;
+	}
+}
+
+void	ls_driver(t_files *ls)
+{
+	t_pcol p;
+	struct winsize w;
+
+	ioctl(0, TIOCGWINSZ, &w);
+	col_format(ls, &p, w.ws_col);
+	list_globalize(ls, p);
+//	print_global_list();
+//	printf("col: %d row: %d max: %d no_f: %d\n", p.col, p.row, p.max, p.no_f);
+
+	print_columns(p);
+	free(g_sorted_file);
+}
+
+void	parse_multi_argv(int argc, char *argv[], t_files **files, t_files **dir)
+{
+	int		i;
+	t_stat	stat;
+
+	i = g_argc;
+	while (i < argc)
+	{
+		if (lstat(argv[i], &stat) < 0)
+			printf("ft_ls: %s: %s\n", argv[i], strerror(errno));
+		else
+		{
+			if (is_regular_file(argv[i]))
+				make_links(files, argv[i], argv[i]);
+			else
+				make_links(dir, argv[i], argv[i]);
+		}
+		i++;
+	}
+}
+
+void	open_print(char *name)
+{
+	t_stat stat;
+	DIR *dir;
+	struct dirent *dp;
+	char *path;
+	t_files *ls;
+
+	ls = NULL;
+	if ((dir = opendir(name)) == NULL)
+		printf("ft_ls: %s: %s\n", name, strerror(errno));
+	else
+	{
+		while ((dp = readdir(dir)) != NULL)
+		{
+			if (!file_ignored(dp->d_name))
+			{
+				path = path_to_file(name, dp->d_name);
+				make_links(&ls, dp->d_name, path);
+			}
+		}
+		closedir(dir);
+	}
+	ls_driver(ls);
+	free_inner_dir(ls);
+}
+
+void	print_directories(t_files *ls)
+{
+	while (ls)
+	{
+		printf("%s:\n", ls->path);
+		open_print(ls->name);
+		ls = ls->next;
+		if (!ls)
+			break;
+		printf("\n");
+	}
+}
+
+void	multi_argv(int argc, char *argv[])
+{
+	t_files *files;
+	t_files *dir;
+
+	files = NULL;
+	dir = NULL;
+	parse_multi_argv(argc, argv, &files, &dir);
+	merge_sort_list(&files);
+	merge_sort_list(&dir);
+	ls_driver(files);
+	if (!g_recursive)
+		print_directories(dir);
+	if (g_recursive)
+		print_dir(dir, 0);
+	free_list_argv(files);
+	free_list_argv(dir);
+}
 
 int main(int argc, char *argv[])
 {
 	char	*dirname;
 	DIR		*dir;
-	struct dirent dp;
-	struct stat filestat;
+	struct dirent *dp;
+	t_stat filestat;
+	struct winsize w;
+	t_files *ls = NULL;
+	t_files *test;
 	ft_ls_init();
 	if (argc > 1)
 		flag_driver(argc, argv);
+//	print_ls_settings();
+//	sort_argv(argc, argv);
+	t_files *files = NULL;
+	t_files *d = NULL;
+	printf("g_argc:%d argc: %d\n", g_argc, argc);
+	if (g_argc && (g_argc < (argc - 1)))
+		multi_argv(argc, argv);
+
+//	ls_driver(files);
+//	ls_driver(d);
+	//print_dir(d);
+	//ls_driver(d);
+//	ls = inner_dir(".");
+//	free_inner_dir(ls);
+	//print_dir(ls);
+//	for (int i = g_argc; i < argc; i++)
+//		printf("%s\n", argv[i]);
+//	print_list(ls);
+//	print_dir(ls);
 	/*if (stat(argv[1], &filestat) < 0)
 		return 1;
 	printf("File Permissions: \t\n");
-    ft_printf( (S_ISDIR(filestat.st_mode)) ? "d" : "-");
+    printf( (S_ISDIR(filestat.st_mode)) ? "d" : "-");
     printf( (filestat.st_mode & S_IRUSR) ? "r" : "-");
     printf( (filestat.st_mode & S_IWUSR) ? "w" : "-");
     printf( (filestat.st_mode & S_IXUSR) ? "x" : "-");
@@ -268,17 +878,44 @@ int main(int argc, char *argv[])
     printf( (filestat.st_mode & S_IXOTH) ? "x" : "-");
 	printf("\nFile or Directory: \t");
 	printf( (S_ISDIR(filestat.st_mode)) ? "Dir" : "File");*/
-//	ft_printf("start: %d argc: %d dirname: %s\n", start, argc, dirname);
-//	while(1);
-	//format = horizontal;
-	char *filename = "ft_ls.h";
-	if ((dir = opendir(filename)) == NULL)
-	{
-		printf("ft_ls: %s: %s\n", filename, strerror(errno));
-		printf("errno: %d\n", errno);
-	}
-	printf("errno: %d\n", errno);
-	print_ls_settings();
-	printf("start argc: %d\nargc: %d\n", g_argc, argc);
+//	char *pa = argv[g_argc];
+//	(!g_argc) && (pa = ".");
+//	if ((dir = opendir(pa)) == NULL)
+//	{
+//		read_file(pa);
+//		printf("ft_ls: %s:%s\n", argv[g_argc],strerror(errno));
+//	}
+//	while ((dp = readdir(dir)) != NULL)
+//	{
+//		if (!file_ignored(dp->d_name))
+//		{
+//		char *path = path_to_file(pa, dp->d_name);
+//		//printf("path: %s\n", path);
+//		if (lstat(path, &filestat) < 0)
+//		{
+//			printf("ft_ls: %s\n", strerror(errno));
+//		}
+//		if (!ls)
+//			ls = create(dp->d_name, path, filestat);
+//		else
+//			append(&ls, dp->d_name, path, filestat);
+//		}
+//	}
+//	print_list(ls);
+//	printf("errno: %d\n", errno);
+//	print_ls_settings();
+//	printf("start argc: %d\nargc: %d\n", g_argc, argc);
+//	(g_sort_reverse) ? merge_sort_list(&ls, strcmp_descend) : merge_sort_list(&ls, strcmp_ascend);
+//	merge_sort_list(&ls);
+//	print_list(ls);
+//	ioctl(0, TIOCGWINSZ, &w);
+//	t_pcol p;
+//	printf("col: %hd\n", w.ws_col); 
+//	col_format(ls, &p, w.ws_col);
+//	list_globalize(ls, p);
+//	test = g_sorted_file[0];
+//	printf("test: %s\n", test->name);
+//	print_global_list();
+//	printf("count: %d max: %d col: %d row: %d\n", p.no_f, p.max, p.col, p.row);
 	return (0);
 }
