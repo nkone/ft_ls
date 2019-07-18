@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/20 11:58:24 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/15 20:33:05 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/17 20:53:31 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -737,6 +737,7 @@ void print_columns(t_pcol p)
 	}
 }
 
+void	print_long(t_files *ls);
 void	ls_driver(t_files *ls)
 {
 	t_pcol p;
@@ -748,8 +749,16 @@ void	ls_driver(t_files *ls)
 //	print_global_list();
 //	printf("col: %d row: %d max: %d no_f: %d\n", p.col, p.row, p.max, p.no_f);
 
-	print_columns(p);
-	free(g_sorted_file);
+	if (format == long_format)
+		print_long(ls);
+	else if (format == many_per_line)
+	{
+		ioctl(0, TIOCGWINSZ, &w);
+		col_format(ls, &p, w.ws_col);
+		list_globalize(ls, p);
+		print_columns(p);
+		free(g_sorted_file);
+	}
 }
 
 void	parse_multi_argv(int argc, char *argv[], t_files **files, t_files **dir)
@@ -813,6 +822,221 @@ void	print_directories(t_files *ls)
 	}
 }
 
+int		max(int a, int b)
+{
+	return ((a > b) ? a : b);
+}
+
+int		count_nbr(int n)
+{
+	int c;
+
+	c = 1;
+	if (!n)
+		return (1);
+	while (n /= 10)
+		c++;
+	return (c);
+}
+
+int  get_usr_w(int w, uid_t u)
+{
+	if (g_numeric_id)
+		w = max(count_nbr(u), w);
+	else
+		w = max(ft_strlen(getpwuid(u)->pw_name), w);
+	return (w);
+}
+
+int get_grp_w(int w, gid_t g)
+{
+	if (g_numeric_id)
+		w = max(count_nbr(g), w);
+	else
+		w = max(ft_strlen(getgrgid(g)->gr_name), w);
+	return (w);
+}
+
+void	index_details(t_files *ls, t_idx *i)
+{
+	int		total;
+
+	total = 0;
+	while (ls)
+	{
+		total += ls->fstat.st_blocks;
+		i->ino_w = max(count_nbr(ls->fstat.st_ino), i->ino_w);
+		i->lin_w = max(count_nbr(ls->fstat.st_nlink), i->lin_w);
+		i->usr_w = get_usr_w(i->usr_w, ls->fstat.st_uid);
+		i->grp_w = get_grp_w(i->grp_w, ls->fstat.st_gid);
+		i->siz_w = max(count_nbr(ls->fstat.st_size), i->siz_w);
+		if (S_ISCHR(ls->fstat.st_mode) || S_ISBLK(ls->fstat.st_mode))
+		{
+			i->maj_w = max(count_nbr(major(ls->fstat.st_rdev)), i->maj_w);
+			i->min_w = max(count_nbr(minor(ls->fstat.st_rdev)), i->min_w);
+			i->siz_w = max(i->maj_w + i->min_w + 2, i->siz_w);
+		}
+		ls = ls->next;
+	}
+	printf("total %d\n", total);
+	/*
+	 * total of blocks are only printed if it's a folder
+	 */
+}
+
+char	get_file_type(int mode)
+{
+	if (S_ISDIR(mode))
+		return ('d');
+	else if (S_ISCHR(mode))
+		return ('c');
+	else if (S_ISBLK(mode))
+		return ('b');
+	else if (S_ISFIFO(mode))
+		return ('p');
+	else if (S_ISLNK(mode))
+		return ('l');
+	else if (S_ISSOCK(mode))
+		return ('s');
+	else
+		return ('-');
+}
+
+char	get_acl_exe(char *path)
+{
+	acl_t acl;
+
+	acl = NULL;
+	if (listxattr(path, NULL, 0, XATTR_NOFOLLOW) > 0)
+		return ('@');
+	if ((acl = acl_get_link_np(path, ACL_TYPE_EXTENDED)))
+	{
+		acl_free(acl);
+		return ('+');
+	}
+	return (' ');
+}
+
+void	ft_ls_mode(int mode, char *path)
+{
+	char buf[12];
+
+	buf[0] = get_file_type(mode);
+	buf[1] = (mode & S_IRUSR) ? 'r' : '-';
+	buf[2] = (mode & S_IWUSR) ? 'w' : '-';
+	buf[3] = (mode & S_IXUSR) ? 'x' : '-';
+	buf[4] = (mode & S_IRGRP) ? 'r' : '-';
+	buf[5] = (mode & S_IWGRP) ? 'w' : '-';
+	buf[6] = (mode & S_IXGRP) ? 'x' : '-';
+	buf[7] = (mode & S_IROTH) ? 'r' : '-';
+	buf[8] = (mode & S_IWOTH) ? 'w' : '-';
+	buf[9] = (mode & S_IXOTH) ? 'x' : '-';
+	if (mode & S_ISUID)
+		buf[3] = (buf[3] == '-') ? 'S' : 's';
+	if (mode & S_ISGID)
+		buf[6] = (buf[6] == '-') ? 'S' : 's';
+	if (mode & S_ISVTX)
+		buf[9] = (buf[9] == '-') ? 'T' : 't';
+	buf[10] = get_acl_exe(path);
+	buf[11] = '\0';
+	ft_printf("%s ", buf);
+}
+
+void	print_usr_grp(t_files *ls, t_idx i)
+{
+	if (g_numeric_id)
+	{
+		ft_printf("%-*d  ", i.usr_w, ls->fstat.st_uid);
+		ft_printf("%-*d  ", i.grp_w, ls->fstat.st_gid);
+	}
+	else
+	{
+		ft_printf("%-*s  ", i.usr_w, getpwuid(ls->fstat.st_uid)->pw_name);
+		ft_printf("%-*s  ", i.grp_w, getgrgid(ls->fstat.st_gid)->gr_name);
+	}
+}
+
+void	print_date_time(char *s)
+{
+	char buf[14];
+	int i;
+	int j;
+
+	i = 4;
+	j = 0;
+	ft_bzero(buf, sizeof(buf));
+	while (i < 16)
+		buf[j++] = s[i++];
+	buf[j] = '\0';
+	ft_printf("%s ", buf);
+}
+
+void	print_year(char *s)
+{
+	char buf[13];
+	int i;
+	int j;
+
+	i = 4;
+	j = 0;
+	while (i < 11)
+		buf[j++] = s[i++];
+	i = 20;
+	buf[j++] = ' ';
+	while (i < 24)
+		buf[j++] = s[i++];
+	buf[j] = '\0';
+	ft_printf("%s ", buf);
+}
+int		check_timestamp(struct tm f_time)
+{
+	time_t t;
+	struct tm l_time;
+
+	time(&t);
+	localtime_r(&t, &l_time);
+	if ((l_time.tm_year - f_time.tm_year) > 0 || 
+	(l_time.tm_year - f_time.tm_year) < 0 ||
+	(l_time.tm_mon - f_time.tm_mon) > 5 || (l_time.tm_mon - f_time.tm_mon < 0)
+	|| (l_time.tm_wday - f_time.tm_wday) < 0)
+		return (0);
+	return (1);
+}
+
+void	print_time(t_files *ls)
+{
+	time_t t;
+	struct tm t_info;
+	char buf[26];
+
+	t = ls->fstat.st_mtime;
+	localtime_r(&t, &t_info);
+	if (!check_timestamp(t_info))
+		print_year(ctime_r(&t, buf));
+	else
+		print_date_time(ctime_r(&t, buf));
+}
+
+void	print_long(t_files *ls)
+{
+	t_idx i;
+	if (ls)
+	{
+		ft_bzero(&i, sizeof(t_idx));
+		index_details(ls, &i);
+		if (g_print_inode)
+			ft_printf("%-*llu ", i.ino_w, ls->fstat.st_ino);
+		ft_ls_mode(ls->fstat.st_mode, ls->path);
+		ft_printf("%-*d ", i.lin_w, ls->fstat.st_nlink);
+		print_usr_grp(ls, i);
+		ft_printf("%-*d ", i.siz_w, ls->fstat.st_size);
+		print_time(ls);
+		ft_printf("%s", ls->color);
+		ft_printf("%s\n"P_NC, ls->name);
+	//	ls = ls->next;
+	}
+}
+
 void	multi_argv(int argc, char *argv[])
 {
 	t_files *files;
@@ -828,30 +1052,29 @@ void	multi_argv(int argc, char *argv[])
 		print_directories(dir);
 	if (g_recursive)
 		print_dir(dir, 0);
+	print_long(dir);
 	free_list_argv(files);
 	free_list_argv(dir);
 }
 
 int main(int argc, char *argv[])
 {
-	char	*dirname;
-	DIR		*dir;
-	struct dirent *dp;
-	t_stat filestat;
-	struct winsize w;
-	t_files *ls = NULL;
-	t_files *test;
 	ft_ls_init();
 	if (argc > 1)
 		flag_driver(argc, argv);
 //	print_ls_settings();
-//	sort_argv(argc, argv);
-	t_files *files = NULL;
-	t_files *d = NULL;
 	printf("g_argc:%d argc: %d\n", g_argc, argc);
 	if (g_argc && (g_argc < (argc - 1)))
 		multi_argv(argc, argv);
-
+	else if ((argc - g_argc) == 1)
+		open_print(argv[g_argc]);
+	else if (!g_argc)
+		open_print(".");
+/*
+use the sorted list and index it into an index struct containing the max len
+of each fields.
+calculate total blocks
+*/
 //	ls_driver(files);
 //	ls_driver(d);
 	//print_dir(d);
