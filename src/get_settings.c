@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/21 15:26:02 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/21 16:58:40 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/23 17:11:37 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 **		NONE
 ** Creates the initial settings for ft_ls.
 ** Settings here are default unless changed by collected flags.
-** Returns: 
+** Returns:
 **		void.
 */
 
@@ -42,7 +42,7 @@ void	ft_ls_init(void)
 **		[c]: index to access a specific argument value.
 ** Parses through an argument, with given index (c), checks for illegal flags,
 ** alters settings for legal flags.
-** Returns:	
+** Returns:
 **			value of c if argument does not start with '-' follow by a character
 ** 			0 if success.
 */
@@ -53,7 +53,7 @@ int		get_flags(char *argv[], int c)
 	char	*ref;
 
 	i = 0;
-	if (argv[c][i] == '-' && argv[c][i+1] != '\0')
+	if (argv[c][i] == '-' && argv[c][i + 1] != '\0')
 		i++;
 	else if (argv[c][i])
 		return (c);
@@ -93,6 +93,6 @@ void	flag_driver(int argc, char *argv[])
 	{
 		g_argc = get_flags(argv, c);
 		if (g_argc != 0)
-			break;
+			break ;
 	}
 }

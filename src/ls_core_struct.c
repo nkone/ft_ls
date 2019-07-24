@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/21 17:43:35 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/21 18:33:40 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/23 17:12:07 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ void	make_links(t_files **ls, char *name, char *path)
 **		[source]: main list to be split
 **		[front]: double pointer for front of list
 **		[back]: doulbe pointer for back of list
-** Split the list into half. Front points to head of list, back points to 
+** Split the list into half. Front points to head of list, back points to
 ** middle. If list has odd elements, front will get one extra.
 ** Returns:
 **		void.
@@ -137,10 +137,11 @@ t_files	*sorted_merge(t_files *a, t_files *b, int (*cmp)())
 ** function merge_sort_list()
 ** Parameters:
 **		[ls]: double pointer to struct t_files
-** Recursive implementation of merge sort
+** Recursive implementation of merge sort.
 ** Returns:
 **		void.
 */
+
 void	merge_sort_list(t_files **ls)
 {
 	t_files *head;
