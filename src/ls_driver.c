@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 19:28:50 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/24 15:11:46 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/25 15:14:25 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void	print_long(t_files *ls)
 		if (g_print_inode)
 			ft_printf("%-*llu ", i.ino_w, ls->fstat.st_ino);
 		print_mode(ls->fstat.st_mode, ls->path);
-		ft_printf("%-*u ", i.lin_w, ls->fstat.st_nlink);
+		ft_printf("%*u ", i.lin_w, ls->fstat.st_nlink);
 		print_usr_grp(i, ls);
 		ft_printf("%*d ", i.siz_w, ls->fstat.st_size);
 		print_time(ls);
