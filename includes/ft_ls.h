@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/20 11:59:34 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/21 17:49:58 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/24 22:00:20 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -273,6 +273,13 @@ typedef struct		s_idx
 }					t_idx;
 
 /*
+** ft_ls_util.c
+*/
+void				open_print(char *name);
+void				print_directories(t_files *f);
+void				ls_init_sort(t_files **f);
+
+/*
 ** sort_util.c
 */
 
@@ -297,7 +304,6 @@ char				*get_color(t_stat stat);
 char				get_style(t_stat stat);
 char				get_file_type(int mode);
 char				get_acl_exe(char *path);
-int					is_exe(t_stat stat);
 
 /*
 ** ls_core_struct.c
@@ -308,5 +314,64 @@ void				make_links(t_files **ls, char *name, char *path);
 void				merge_sort_list(t_files **ls);
 void				split_list(t_files *src, t_files **front, t_files **back);
 t_files				*sorted_merge(t_files *a, t_files *b, int (*cmp)());
+
+/*
+** ls_boolean.c
+*/
+
+bool				is_exe(t_stat stat);
+bool				is_regular_file(const char *path);
+bool				is_regular_dir(const char *path);
+bool				is_empty_dir(t_files *f);
+bool				file_ignored(const char *filename);
+
+/*
+** ls_index.c
+*/
+
+void				index_details(t_files *f, t_idx *i);
+
+/*
+** ls_dir.c
+*/
+
+char				*path_to_file(const char *path, const char *file);
+void				free_inner_dir(t_files *f);
+void				print_dir(t_files *f, int flag);
+t_files				*inner_dir(const char *name);
+
+/*
+** ls_driver.c
+*/
+void				print_long(t_files *f);
+void				print_list(t_files *f);
+void				print_with_commas(t_files *f);
+void				print_columns(t_pcol p);
+void				ls_driver(t_files *f);
+
+/*
+** ls_print_util.c
+*/
+
+void				print_mode(int mode, char *path);
+void				print_classify(t_pcol p, t_files *f);
+void				print_usr_grp(t_idx i, t_files *f);
+void				print_long_name(t_files *f);
+void				print_time(t_files *f);
+
+/*
+** ls_time_util.c
+*/
+
+void				print_date_time(char *s);
+void				print_year(char *s);
+int					check_timestamp(struct tm f_time);
+
+/*
+** ls_col_util.c
+*/
+
+void				col_format(t_files *f, t_pcol *p, unsigned short wcol);
+void				ls_list_globalize(t_files *f, t_pcol p);
 
 #endif
