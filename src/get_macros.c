@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/21 15:52:46 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/21 17:29:14 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/24 13:36:48 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,12 +28,12 @@ char	*get_color(t_stat stat)
 		if ((stat.st_mode & S_ISUID) || (stat.st_mode & S_ISGID))
 			return (P_REVERSE);
 		else
-  			return (P_RED);
+			return (P_RED);
 	}
 	else if (S_ISDIR(stat.st_mode))
 		return (P_CYAN);
 	else if (S_ISLNK(stat.st_mode))
-		return(P_MAGENTA);
+		return (P_MAGENTA);
 	else
 		return ("");
 }
@@ -57,7 +57,7 @@ char	get_style(t_stat stat)
 		else if (S_ISDIR(stat.st_mode))
 			return ('/');
 		else if (S_ISLNK(stat.st_mode))
-			return('@');
+			return ('@');
 	}
 	if (indicator_style == slash)
 	{
@@ -117,4 +117,3 @@ char	get_acl_exe(char *path)
 	}
 	return (' ');
 }
-

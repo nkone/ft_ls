@@ -6,11 +6,21 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 19:36:36 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/23 20:00:50 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/24 15:34:13 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ls.h"
+
+/*
+** function print_mode()
+** Paramters:
+**		[mode]: a number with mode assigned in by bitwise
+**		[path]: path to file or directories
+** Collects the mode and store them in the buffer to print
+** Returns:
+**		void.
+*/
 
 void	print_mode(int mode, char *path)
 {
@@ -37,6 +47,17 @@ void	print_mode(int mode, char *path)
 	ft_printf("%s ", buf);
 }
 
+/*
+** function print_classify()
+** Paramters:
+**		[p]: struct t_pcol for p.max
+**		[f]: linked list with contents
+** Handles printing classify cases, expand the width correctly if there is a
+** classify character
+** Returns:
+**		void.
+*/
+
 void	print_classify(t_pcol p, t_files *f)
 {
 	if (!(indicator_style == none))
@@ -50,6 +71,17 @@ void	print_classify(t_pcol p, t_files *f)
 	else
 		ft_printf("%s%-*s"P_NC, f->color, p.max + 1, f->name);
 }
+
+/*
+** function print_usr_grp()
+** Parameters:
+**		[i]: struct t_idx, for max width
+**		[f]: linked list with contents
+** A helper function to point group and user ID, if g_numeric_id is true
+** then print them as number instead
+** Returns:
+**		void.
+*/
 
 void	print_usr_grp(t_idx i, t_files *f)
 {
@@ -65,6 +97,15 @@ void	print_usr_grp(t_idx i, t_files *f)
 	}
 }
 
+/*
+** function print_long_name()
+** Parameters:
+**		[f]: linked list with contents
+** Print name of the file after all columns are printed
+** Returns:
+**		void.
+*/
+
 void	print_long_name(t_files *f)
 {
 	char link[NAME_MAX + 1];
@@ -78,6 +119,15 @@ void	print_long_name(t_files *f)
 	else
 		ft_printf("%s%s"P_NC"%c\n", f->color, f->name, f->style);
 }
+
+/*
+** function print_time()
+** Parameters:
+**		[f]: linked list with contents
+** Print time columns in long format. ctime_r requires buffer to be minimum 26.
+** Returns:
+**		void.
+*/
 
 void	print_time(t_files *f)
 {

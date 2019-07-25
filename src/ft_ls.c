@@ -6,11 +6,20 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 20:07:03 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/24 13:35:48 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/24 22:02:31 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ls.h"
+
+/*
+** function free_list_argv()
+** Parameters:
+**		[f]: linked list of argv
+** Free nodes in linked list, free name (as name was added with ft_strdup)
+** Returns:
+**		void.
+*/
 
 void	free_list_argv(t_files *f)
 {
@@ -25,6 +34,20 @@ void	free_list_argv(t_files *f)
 		f = temp;
 	}
 }
+
+/*
+** function parse_multi_argv()
+** Parameters:
+**		[argc]: argument counter
+**		[argv]: pointer to array of char
+**		[files]: double pointer to struct t_files
+**		[dir]: doulbe pointer to struct t_files
+** Takes then the address of the pointer and allocate the linked list according.
+** files will be a linked list of files, and dir will be a linked list of
+** directories.
+** Returns:
+**		void.
+*/
 
 void	parse_multi_argv(int argc, char *argv[], t_files **files, t_files **dir)
 {
@@ -47,6 +70,18 @@ void	parse_multi_argv(int argc, char *argv[], t_files **files, t_files **dir)
 	}
 }
 
+/*
+** function multi_argv()
+** Paramters:
+**		[argc]: argument counter
+**		[argv]: pointer to array of char
+** Handles multi arguments in main. Split the arguments into files and
+** directories and sort them with merge sort. Print files first with given
+** settings and then print directories.
+** Returns:
+**		void.
+*/
+
 void	multi_argv(int argc, char *argv[])
 {
 	t_files *files;
@@ -55,8 +90,8 @@ void	multi_argv(int argc, char *argv[])
 	files = NULL;
 	dir = NULL;
 	parse_multi_argv(argc, argv, &files, &dir);
-	merge_sort_list(&files);
-	merge_sort_list(&dir);
+	ls_init_sort(&files);
+	ls_init_sort(&dir);
 	(files) && (g_print_total = false);
 	ls_driver(files);
 	g_print_total = true;
@@ -69,6 +104,16 @@ void	multi_argv(int argc, char *argv[])
 	free_list_argv(dir);
 }
 
+/*
+** function single_argv()
+** Paramters:
+**		[str]: a string, name of file or directory to handle
+** Creates a single node and print file name only if given parameter is a file
+** Handles directory printing if parameter is a directory.
+** Returns:
+**		void.
+*/
+
 void	single_argv(char *str)
 {
 	t_files *ls;
@@ -78,20 +123,30 @@ void	single_argv(char *str)
 	if (is_regular_file(ls->name))
 		ft_printf("%s%s"P_NC"%c\n", ls->color, ls->name, ls->style);
 	else
-		open_print(str);
+		open_print(ls->name);
 	free_list_argv(ls);
-	if (g_recursive)
+	if (g_recursive && !is_regular_file(str))
 	{
 		ls = inner_dir(str);
 		if (ls)
 		{
-			merge_sort_list(&ls);
-			ft_putchar('\n');
-			print_dir(ls, 0);
+			ls_init_sort(&ls);
+			print_dir(ls, 1);
 			free_inner_dir(ls);
 		}
 	}
 }
+
+/*
+** function main()
+** Parameters:
+**		[argc]: argument counter
+**		[argv]: pointer to array of char
+** Main function of ls, handles differently depending on global starting
+** argument
+** Returns:
+**		0 if success;
+*/
 
 int		main(int argc, char *argv[])
 {

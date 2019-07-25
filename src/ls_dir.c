@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 19:04:35 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/23 19:22:21 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/24 22:02:56 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ void	print_dir(t_files *f, int flag)
 			in_dir = inner_dir(f->path);
 			if (in_dir)
 			{
-				merge_sort_list(&in_dir);
+				ls_init_sort(&in_dir);
 				ls_driver(in_dir);
 				if (is_empty_dir(in_dir))
 					ft_putchar('\n');

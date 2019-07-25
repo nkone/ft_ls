@@ -6,11 +6,20 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 19:28:50 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/24 13:34:45 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/24 15:11:46 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ls.h"
+
+/*
+** function print_long()
+** Parameters:
+**		[ls]: linked list with contents to be printed in long format
+** Print ls in long format
+** Returns:
+**		void.
+*/
 
 void	print_long(t_files *ls)
 {
@@ -32,6 +41,15 @@ void	print_long(t_files *ls)
 	}
 }
 
+/*
+** funciton print_list()
+** Paramters:
+**		[f]: linked list of contents to be printed in one per line format
+** Print one per line
+** Returns:
+**		void.
+*/
+
 void	print_list(t_files *f)
 {
 	while (f)
@@ -40,6 +58,15 @@ void	print_list(t_files *f)
 		f = f->next;
 	}
 }
+
+/*
+** function print_with_commas()
+** Parameters:
+**		[ls]: linked list of contents to be printed with commas
+** Prints ls with comma separators
+** Returns:
+**		void.
+*/
 
 void	print_with_commas(t_files *ls)
 {
@@ -68,6 +95,15 @@ void	print_with_commas(t_files *ls)
 	ft_putchar('\n');
 }
 
+/*
+** function print_columns()
+** Parameters:
+**		[p]: struct t_pcol with all info needed to print in columns
+** Print ls in columns format
+** Returns:
+**		void.
+*/
+
 void	print_columns(t_pcol p)
 {
 	t_files	*f;
@@ -92,6 +128,15 @@ void	print_columns(t_pcol p)
 		x++;
 	}
 }
+
+/*
+** function ls_driver()
+** Paramters:
+**		[ls]: linked list with contents to be printed
+** A mini jump "table" to handle different format cases
+** Returns:
+** 		void.
+*/
 
 void	ls_driver(t_files *ls)
 {
