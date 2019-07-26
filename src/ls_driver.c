@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 19:28:50 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/25 15:14:25 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/25 16:11:10 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,8 @@ void	print_list(t_files *f)
 {
 	while (f)
 	{
+		if (g_print_inode)
+			ft_printf("%llu ", f->fstat.st_ino);
 		ft_printf("%s%s"P_NC"%c\n", f->color, f->name, f->style);
 		f = f->next;
 	}
@@ -120,6 +122,7 @@ void	print_columns(t_pcol p)
 		while (j < p.col && i < p.no_f)
 		{
 			f = g_sorted_file[i];
+			(g_print_inode) && ft_printf("%llu ", f->fstat.st_ino);
 			print_classify(p, f);
 			i += (format == many_per_line) ? p.row : 1;
 			j++;

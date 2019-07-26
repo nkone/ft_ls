@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/20 16:09:55 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/24 22:04:58 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/25 18:08:22 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,11 @@ int	cmp_alpha(const char *s1, const char *s2)
 	if (!g_sort_reverse)
 		return (ft_strcmp(s1, s2) < 0);
 	return (ft_strcmp(s1, s2) > 0);
+}
+
+int	casecmp_alpha(const char *s1, const char *s2)
+{
+	return (ft_strcasecmp(s1, s2) < 0);
 }
 
 /*
@@ -81,5 +86,7 @@ int	select_sort(t_files *a, t_files *b)
 		return (cmp_time(a->fstat.st_mtime, b->fstat.st_mtime));
 	else if (sort_type == sort_size)
 		return (cmp_size(a->fstat.st_size, b->fstat.st_size));
+	else if (sort_type == sort_none)
+		return (casecmp_alpha(a->name, b->name));
 	return (1);
 }

@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/02/12 14:40:25 by phtruong          #+#    #+#             */
-/*   Updated: 2019/06/19 13:27:09 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/25 18:04:16 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ char				*ft_strstr(const char *str, const char *find);
 size_t				ft_strnlen(const char *str, size_t maxlen);
 char				*ft_strnstr(const char *str, const char *find, size_t len);
 int					ft_strcmp(const char *s1, const char *s2);
+int					ft_strcasecmp(const char *s1, const char *s2);
 int					ft_strncmp(const char *s1, const char *s2, size_t n);
 
 /*

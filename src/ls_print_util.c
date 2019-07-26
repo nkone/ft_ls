@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 19:36:36 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/24 15:34:13 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/25 16:26:00 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,8 +68,11 @@ void	print_classify(t_pcol p, t_files *f)
 		else
 			ft_printf("%-*c", p.max - ft_strlen(f->name) + 1, f->style);
 	}
-	else
+	else if (!g_print_inode)
 		ft_printf("%s%-*s"P_NC, f->color, p.max + 1, f->name);
+	else if (g_print_inode)
+		ft_printf("%s%-*s"P_NC, f->color, (p.max + 1) -
+				(count_nbr(f->fstat.st_ino) + 1), f->name);
 }
 
 /*

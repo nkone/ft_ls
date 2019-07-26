@@ -6,16 +6,15 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/20 13:09:20 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/20 13:50:48 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/25 18:20:35 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ls.h"
 
-void	case_f(void)
+void	case_a(void)
 {
 	ignore_mode = MINIMAL;
-	sort_type = sort_none;
 }
 
 void	case_i(void)

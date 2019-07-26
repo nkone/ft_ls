@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/20 11:59:34 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/24 22:00:20 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/25 18:19:23 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@
 # include "../libft/libft.h"
 # include "../libft/ft_printf.h"
 
-# define LS_FLAGS "AFRSafilmnprtx1"
+# define LS_FLAGS "AIFRSailmnprtx1"
 
 /*
 ** These macros are for color printing
@@ -62,11 +62,11 @@
 ** recreating switch operation using jump table
 */
 void				case_ua(void);
+void				case_ui(void);
 void				case_uf(void);
 void				case_ur(void);
 void				case_us(void);
 void				case_a(void);
-void				case_f(void);
 void				case_i(void);
 void				case_l(void);
 void				case_m(void);
@@ -89,11 +89,11 @@ typedef	void		t_ls_jump(void);
 static t_ls_jump	*g_ls_flags[] =
 {
 	case_ua,
+	case_ui,
 	case_uf,
 	case_ur,
 	case_us,
 	case_a,
-	case_f,
 	case_i,
 	case_l,
 	case_m,
@@ -329,6 +329,7 @@ bool				file_ignored(const char *filename);
 ** ls_index.c
 */
 
+int					count_nbr(int n);
 void				index_details(t_files *f, t_idx *i);
 
 /*

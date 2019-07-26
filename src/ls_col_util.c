@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 19:56:10 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/24 15:05:13 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/25 16:22:49 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ void	col_format(t_files *f, t_pcol *p, unsigned short wcol)
 	{
 		len = (int)ft_strlen(f->name);
 		len += !(indicator_style == none) ? 1 : 0;
+		len += (g_print_inode) ? count_nbr(f->fstat.st_ino) + 1 : 0;
 		p->max = (len > p->max) ? len : p->max;
 		p->no_f += 1;
 		f = f->next;

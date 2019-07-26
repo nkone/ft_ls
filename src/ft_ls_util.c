@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 20:15:05 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/24 22:17:28 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/25 18:10:14 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,9 +73,8 @@ void	print_directories(t_files *f)
 /*
 ** function ls_init_sort()
 ** Parameters:
-**		[f]: linked list of contents
-** Initialize sorting, sort by name first then switch back to user chosen sort
-** type
+**		[f]: double pointer to linked list contains content for sorting
+** Sort by name first then sort by user select option
 ** Returns:
 **		void.
 */
@@ -85,8 +84,13 @@ void	ls_init_sort(t_files **f)
 	int s;
 
 	s = sort_type;
-	sort_type = sort_name;
-	merge_sort_list(f);
-	sort_type = s;
-	merge_sort_list(f);
+	if (sort_type == sort_none)
+		merge_sort_list(f);
+	else
+	{
+		sort_type = sort_name;
+		merge_sort_list(f);
+		sort_type = s;
+		merge_sort_list(f);
+	}
 }
