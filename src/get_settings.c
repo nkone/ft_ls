@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/21 15:26:02 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/23 17:11:37 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/25 20:22:22 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ int		get_flags(char *argv[], int c)
 	{
 		if (!(ref = ft_strchr(LS_FLAGS, argv[c][i])))
 		{
-			ft_printf("ls: illegal option -- %c\nusage: ft_ls [-%s]"
+			ft_printf("ft_ls: illegal option -- %c\nusage: ft_ls [-%s]"
 					" [file ...]\n", argv[c][i], LS_FLAGS);
 			exit(1);
 		}

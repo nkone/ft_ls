@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/21 15:52:46 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/24 13:36:48 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/25 19:16:38 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,9 @@
 
 char	*get_color(t_stat stat)
 {
-	if (is_exe(stat))
+	if (S_ISSOCK(stat.st_mode))
+		return (P_GREEN);
+	else if (is_exe(stat))
 	{
 		if ((stat.st_mode & S_ISUID) || (stat.st_mode & S_ISGID))
 			return (P_REVERSE);

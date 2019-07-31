@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 19:28:50 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/25 16:11:10 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/25 19:06:16 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,13 @@ void	print_long(t_files *ls)
 		print_mode(ls->fstat.st_mode, ls->path);
 		ft_printf("%*u ", i.lin_w, ls->fstat.st_nlink);
 		print_usr_grp(i, ls);
-		ft_printf("%*d ", i.siz_w, ls->fstat.st_size);
+		if (S_ISCHR(ls->fstat.st_mode) || S_ISBLK(ls->fstat.st_mode))
+		{
+			ft_printf("%*d,", i.maj_w + 1, major(ls->fstat.st_rdev));
+			ft_printf("%*d ", i.min_w + 1, minor(ls->fstat.st_rdev));
+		}
+		else
+			ft_printf("%*d ", i.siz_w, ls->fstat.st_size);
 		print_time(ls);
 		print_long_name(ls);
 		ls = ls->next;

@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/20 16:09:55 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/25 18:08:22 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/25 20:10:40 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,21 @@ int	cmp_alpha(const char *s1, const char *s2)
 	return (ft_strcmp(s1, s2) > 0);
 }
 
+/*
+** function casecmp_alpha()
+** Parameters:
+**		[s1]: string 1
+**		[s2]: string 2
+** Uses ft_strcasecmp to compare string not case sensitive, STRING = string
+** Returns:
+**		1 if true, 0 otherwise
+*/
+
 int	casecmp_alpha(const char *s1, const char *s2)
 {
-	return (ft_strcasecmp(s1, s2) < 0);
+	if (!g_sort_reverse)
+		return (ft_strcasecmp(s1, s2) < 0);
+	return (ft_strcasecmp(s1, s2) > 0);
 }
 
 /*
@@ -44,11 +56,22 @@ int	casecmp_alpha(const char *s1, const char *s2)
 **		1 if true, 0 otherwise
 */
 
-int	cmp_time(time_t a, time_t b)
+int	cmp_time(t_files *a, t_files *b)
 {
 	if (!g_sort_reverse)
-		return (a >= b);
-	return (a <= b);
+	{
+		if (a->fstat.st_mtimespec.tv_sec == b->fstat.st_mtimespec.tv_sec)
+			return (a->fstat.st_mtimespec.tv_nsec >=
+					b->fstat.st_mtimespec.tv_nsec);
+			return (a->fstat.st_mtime > b->fstat.st_mtime);
+	}
+	else
+	{
+		if (a->fstat.st_mtimespec.tv_sec == b->fstat.st_mtimespec.tv_sec)
+			return (a->fstat.st_mtimespec.tv_nsec <=
+					b->fstat.st_mtimespec.tv_nsec);
+			return (a->fstat.st_mtime < b->fstat.st_mtime);
+	}
 }
 
 /*
@@ -83,7 +106,7 @@ int	select_sort(t_files *a, t_files *b)
 	if (sort_type == sort_name)
 		return (cmp_alpha(a->name, b->name));
 	else if (sort_type == sort_time)
-		return (cmp_time(a->fstat.st_mtime, b->fstat.st_mtime));
+		return (cmp_time(a, b));
 	else if (sort_type == sort_size)
 		return (cmp_size(a->fstat.st_size, b->fstat.st_size));
 	else if (sort_type == sort_none)

@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/23 19:36:36 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/25 16:26:00 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/25 19:14:24 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,13 +90,13 @@ void	print_usr_grp(t_idx i, t_files *f)
 {
 	if (g_numeric_id)
 	{
-		ft_printf("%-*d  ", i.usr_w, f->fstat.st_uid);
-		ft_printf("%-*d  ", i.grp_w, f->fstat.st_gid);
+		ft_printf("%-*d ", i.usr_w + 1, f->fstat.st_uid);
+		ft_printf("%-*d ", i.grp_w + 1, f->fstat.st_gid);
 	}
 	else
 	{
-		ft_printf("%-*s  ", i.usr_w, getpwuid(f->fstat.st_uid)->pw_name);
-		ft_printf("%-*s  ", i.grp_w, getgrgid(f->fstat.st_gid)->gr_name);
+		ft_printf("%-*s ", i.usr_w + 1, getpwuid(f->fstat.st_uid)->pw_name);
+		ft_printf("%-*s ", i.grp_w + 1, getgrgid(f->fstat.st_gid)->gr_name);
 	}
 }
 
