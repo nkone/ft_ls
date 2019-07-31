@@ -6,7 +6,7 @@
 /*   By: phtruong <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/20 11:59:34 by phtruong          #+#    #+#             */
-/*   Updated: 2019/07/25 18:19:23 by phtruong         ###   ########.fr       */
+/*   Updated: 2019/07/25 20:00:03 by phtruong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -284,7 +284,7 @@ void				ls_init_sort(t_files **f);
 */
 
 int					cmp_alpha(const char *s1, const char *s2);
-int					cmp_time(time_t a, time_t b);
+int					cmp_time(t_files *a, t_files *b);
 int					cmp_size(off_t a, off_t b);
 int					select_sort(t_files *a, t_files *b);
 
