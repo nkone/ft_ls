@@ -9,3 +9,6 @@ Tested with zsh
 see [pdf](https://github.com/nkone/ft_ls/blob/master/ft_ls.en.pdf) for more details
 ### Demo:
 ![](images/ft_ls_demo.gif)
+
+#### Score:
+![](images/ls_score.png)
