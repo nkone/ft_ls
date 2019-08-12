@@ -23,7 +23,7 @@ List:
   12. r
   13. t
   14. x
-  15. 1
+  15. 1:
     - One entry per line
 
 ![](images/Make.png)
