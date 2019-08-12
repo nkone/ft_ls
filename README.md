@@ -24,7 +24,7 @@ List:
   13. t
   14. x
   15. 1
-    1. One entry per line
+      * One entry per line
 
 ![](images/Make.png)
 see [pdf](https://github.com/nkone/ft_ls/blob/master/ft_ls.en.pdf) for more details
