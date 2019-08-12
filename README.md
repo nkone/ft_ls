@@ -6,7 +6,9 @@ Version 10.13.4 (17E199)\
 Make version: GNU Make 3.81\
 Tested with zsh
 
-## Flags covered:
+## Flags covered
+
+List:
   1.A
   2.I
   3.F
