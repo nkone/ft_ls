@@ -29,15 +29,15 @@ List:
   9. m
      * List files across page, separated by commas
   10. n
-     * Display user and group IDs numerically
+      * Display user and group IDs numerically
   11. p
-     * Write a '/' after each filename that is a directory
+      * Write a '/' after each filename that is a directory
   12. r
-     * Reverse order of sorting
+      * Reverse order of sorting
   13. t
-     * Sort by time modified (most recent comes first)
+      * Sort by time modified (most recent comes first)
   14. x
-     * Multi-column is sorted horizontally rather than vertical
+      * Multi-column is sorted horizontally rather than vertical
   15. 1
       * One entry per line
 
